@@ -22,15 +22,14 @@ local function Harvest(source, zone)
 
 		local xPlayer  = ESX.GetPlayerFromId(source)
 		if zone == "RaisinFarm" then
-			local itemQuantity = xPlayer.getInventoryItem('raisin').count
-			if itemQuantity >= 100 then
-				TriggerClientEvent('esx:showNotification', source, _U('not_enough_place'))
-				return
-			else
+			if xPlayer.canCarryItem('raisin', 1) then
 				SetTimeout(1800, function()
 					xPlayer.addInventoryItem('raisin', 1)
 					Harvest(source, zone)
 				end)
+			else
+				xPlayer.showNotification(_U('not_enough_place'))
+				return
 			end
 		end
 	end
@@ -39,13 +38,15 @@ end
 RegisterServerEvent('esx_vigneronjob:startHarvest')
 AddEventHandler('esx_vigneronjob:startHarvest', function(zone)
 	local _source = source
+
+	local xPlayer  = ESX.GetPlayerFromId(source)
   	
 	if PlayersHarvesting[_source] == false then
-		TriggerClientEvent('esx:showNotification', _source, '~r~C\'est pas bien de glitch ~w~')
+		xPlayer.showNotification('~r~C\'est pas bien de glitch ~w~')
 		PlayersHarvesting[_source]=false
 	else
 		PlayersHarvesting[_source]=true
-		TriggerClientEvent('esx:showNotification', _source, _U('raisin_taken'))  
+		xPlayer.showNotification(_U('raisin_taken'))
 		Harvest(_source,zone)
 	end
 end)
@@ -54,12 +55,14 @@ end)
 RegisterServerEvent('esx_vigneronjob:stopHarvest')
 AddEventHandler('esx_vigneronjob:stopHarvest', function()
 	local _source = source
+
+	local xPlayer  = ESX.GetPlayerFromId(source)
 	
 	if PlayersHarvesting[_source] == true then
 		PlayersHarvesting[_source]=false
-		TriggerClientEvent('esx:showNotification', _source, 'Vous sortez de la ~r~zone')
+		xPlayer.showNotification('Vous sortez de la ~r~zone')
 	else
-		TriggerClientEvent('esx:showNotification', _source, 'Vous pouvez ~g~récolter')
+		xPlayer.showNotification('Vous pouvez ~g~récolter')
 		PlayersHarvesting[_source]=true
 	end
 end)
@@ -74,21 +77,25 @@ local function Transform(source, zone)
 			local itemQuantity = xPlayer.getInventoryItem('raisin').count
 			
 			if itemQuantity <= 0 then
-				TriggerClientEvent('esx:showNotification', source, _U('not_enough_raisin'))
+				xPlayer.showNotification(_U('not_enough_raisin'))
 				return
 			else
 				local rand = math.random(0,100)
 				if (rand >= 98) then
 					SetTimeout(1800, function()
 						xPlayer.removeInventoryItem('raisin', 1)
-						xPlayer.addInventoryItem('grand_cru', 1)
-						TriggerClientEvent('esx:showNotification', source, _U('grand_cru'))
+						if xPlayer.canCarryItem('grand_cru', 1) then
+							xPlayer.addInventoryItem('grand_cru', 1)
+						end
+						xPlayer.showNotification(_U('grand_cru'))
 						Transform(source, zone)
 					end)
 				else
 					SetTimeout(1800, function()
 						xPlayer.removeInventoryItem('raisin', 1)
-						xPlayer.addInventoryItem('vine', 1)
+						if xPlayer.canCarryItem('vine', 1) then
+							xPlayer.addInventoryItem('vine', 1)
+						end
 				
 						Transform(source, zone)
 					end)
@@ -97,12 +104,14 @@ local function Transform(source, zone)
 		elseif zone == "TraitementJus" then
 			local itemQuantity = xPlayer.getInventoryItem('raisin').count
 			if itemQuantity <= 0 then
-				TriggerClientEvent('esx:showNotification', source, _U('not_enough_raisin'))
+				xPlayer.showNotification('_U('not_enough_raisin')')
 				return
 			else
 				SetTimeout(1800, function()
 					xPlayer.removeInventoryItem('raisin', 1)
-					xPlayer.addInventoryItem('jus_raisin', 1)
+					if xPlayer.canCarryItem('jus_raisin', 1) then
+						xPlayer.addInventoryItem('jus_raisin', 1)
+					end
 		  
 					Transform(source, zone)	  
 				end)
@@ -116,11 +125,11 @@ AddEventHandler('esx_vigneronjob:startTransform', function(zone)
 	local _source = source
   	
 	if PlayersTransforming[_source] == false then
-		TriggerClientEvent('esx:showNotification', _source, '~r~C\'est pas bien de glitch ~w~')
+		xPlayer.showNotification('~r~C\'est pas bien de glitch ~w~')
 		PlayersTransforming[_source]=false
 	else
 		PlayersTransforming[_source]=true
-		TriggerClientEvent('esx:showNotification', _source, _U('transforming_in_progress')) 
+		xPlayer.showNotification(_U('transforming_in_progress'))
 		Transform(_source,zone)
 	end
 end)
@@ -129,13 +138,15 @@ RegisterServerEvent('esx_vigneronjob:stopTransform')
 AddEventHandler('esx_vigneronjob:stopTransform', function()
 
 	local _source = source
+
+	local xPlayer  = ESX.GetPlayerFromId(source)
 	
 	if PlayersTransforming[_source] == true then
 		PlayersTransforming[_source]=false
-		TriggerClientEvent('esx:showNotification', _source, 'Vous sortez de la ~r~zone')
+		xPlayer.showNotification('Vous sortez de la ~r~zone')
 		
 	else
-		TriggerClientEvent('esx:showNotification', _source, 'Vous pouvez ~g~transformer votre raisin')
+		xPlayer.showNotification('Vous pouvez ~g~transformer votre raisin')
 		PlayersTransforming[_source]=true
 		
 	end
@@ -160,14 +171,14 @@ local function Sell(source, zone)
 			end
 		
 			if vine == 0 and jus == 0 then
-				TriggerClientEvent('esx:showNotification', source, _U('no_product_sale'))
+				xPlayer.showNotification(_U('no_product_sale'))
 				return
-			elseif xPlayer.getInventoryItem('vine').count <= 0 and jus == 0 then
-				TriggerClientEvent('esx:showNotification', source, _U('no_vin_sale'))
+			elseif xPlayer.getInventoryItem('vine').count <= 0 and jus == 0 
+				xPlayer.showNotification(_U('no_vin_sale'))
 				vine = 0
 				return
-			elseif xPlayer.getInventoryItem('jus_raisin').count <= 0 and vine == 0then
-				TriggerClientEvent('esx:showNotification', source, _U('no_jus_sale'))
+			elseif xPlayer.getInventoryItem('jus_raisin').count <= 0 and vine == 0 then
+				xPlayer.showNotification(_U('no_jus_sale'))
 				jus = 0
 				return
 			else
@@ -182,7 +193,7 @@ local function Sell(source, zone)
 						end)
 						if societyAccount ~= nil then
 							societyAccount.addMoney(money)
-							TriggerClientEvent('esx:showNotification', xPlayer.source, _U('comp_earned') .. money)
+							xPlayer.showNotification(_U('comp_earned') .. money)
 						end
 						Sell(source,zone)
 					end)
@@ -197,7 +208,7 @@ local function Sell(source, zone)
 						end)
 						if societyAccount ~= nil then
 							societyAccount.addMoney(money)
-							TriggerClientEvent('esx:showNotification', xPlayer.source, _U('comp_earned') .. money)
+							xPlayer.showNotification(_U('comp_earned') .. money)
 						end
 						Sell(source,zone)
 					end)
@@ -212,13 +223,15 @@ RegisterServerEvent('esx_vigneronjob:startSell')
 AddEventHandler('esx_vigneronjob:startSell', function(zone)
 
 	local _source = source
+
+	local xPlayer = ESX.GetPlayerFromId(source)
 	
 	if PlayersSelling[_source] == false then
-		TriggerClientEvent('esx:showNotification', _source, '~r~C\'est pas bien de glitch ~w~')
+		xPlayer.showNotification('~r~C\'est pas bien de glitch ~w~')
 		PlayersSelling[_source]=false
 	else
 		PlayersSelling[_source]=true
-		TriggerClientEvent('esx:showNotification', _source, _U('sale_in_prog'))
+		xPlayer.showNotification(_U('sale_in_prog'))
 		Sell(_source, zone)
 	end
 
@@ -228,13 +241,14 @@ RegisterServerEvent('esx_vigneronjob:stopSell')
 AddEventHandler('esx_vigneronjob:stopSell', function()
 
 	local _source = source
+
+	local xPlayer = ESX.GetPlayerFromId(source)
 	
 	if PlayersSelling[_source] == true then
 		PlayersSelling[_source]=false
-		TriggerClientEvent('esx:showNotification', _source, 'Vous sortez de la ~r~zone')
-		
+		xPlayer.showNotification('Vous sortez de la ~r~zone')
 	else
-		TriggerClientEvent('esx:showNotification', _source, 'Vous pouvez ~g~vendre')
+		xPlayer.showNotification('Vous pouvez ~g~vendre')
 		PlayersSelling[_source]=true
 	end
 
@@ -250,13 +264,15 @@ AddEventHandler('esx_vigneronjob:getStockItem', function(itemName, count)
 		local item = inventory.getItem(itemName)
 
 		if item.count >= count then
-			inventory.removeItem(itemName, count)
-			xPlayer.addInventoryItem(itemName, count)
+			if xPlayer.canCarryItem(itemName, count) then
+				inventory.removeItem(itemName, count)
+				xPlayer.addInventoryItem(itemName, count)
+			end
 		else
-			TriggerClientEvent('esx:showNotification', xPlayer.source, _U('quantity_invalid'))
+			xPlayer.showNotification(_U('quantity_invalid'))
 		end
 
-		TriggerClientEvent('esx:showNotification', xPlayer.source, _U('have_withdrawn') .. count .. ' ' .. item.label)
+		xPlayer.showNotification(_U('have_withdrawn') .. count .. ' ' .. item.label)
 
 	end)
 
@@ -283,10 +299,10 @@ AddEventHandler('esx_vigneronjob:putStockItems', function(itemName, count)
 			xPlayer.removeInventoryItem(itemName, count)
 			inventory.addItem(itemName, count)
 		else
-			TriggerClientEvent('esx:showNotification', xPlayer.source, _U('quantity_invalid'))
+			xPlayer.showNotification(_U('quantity_invalid'))
 		end
 
-		TriggerClientEvent('esx:showNotification', xPlayer.source, _U('added') .. count .. ' ' .. item.label)
+		xPlayer.showNotification(_U('added') .. count .. ' ' .. item.label)
 
 	end)
 end)
@@ -312,7 +328,7 @@ ESX.RegisterUsableItem('jus_raisin', function(source)
 	TriggerClientEvent('esx_status:add', source, 'hunger', 40000)
 	TriggerClientEvent('esx_status:add', source, 'thirst', 120000)
 	TriggerClientEvent('esx_basicneeds:onDrink', source)
-	TriggerClientEvent('esx:showNotification', source, _U('used_jus'))
+	xPlayer.showNotification(_U('used_jus'))
 
 end)
 
@@ -324,6 +340,6 @@ ESX.RegisterUsableItem('grand_cru', function(source)
 
 	TriggerClientEvent('esx_status:add', source, 'drunk', 400000)
 	TriggerClientEvent('esx_basicneeds:onDrink', source)
-	TriggerClientEvent('esx:showNotification', source, _U('used_grand_cru'))
+	xPlayer.showNotification(_U('used_grand_cru'))
 
 end)
