@@ -3,7 +3,7 @@
 -- SenSi and Kaminosekai
 -----------------------------------------
 ESX = nil
-local PlayersTransforming, PlayersSelling  = {}, {}, {}
+local PlayersTransforming, PlayersSelling, PlayersHarvesting = {}, {}, {}
 local vine, jus = 1, 1
 
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
