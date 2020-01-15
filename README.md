@@ -24,8 +24,3 @@ start esx_vigneronjob
 ```
 
 5) If you want player management you have to set Config.EnablePlayerManagement on true in config.lua
-# esx_vigneronjob
-
-# esx_vigneronjob
-
-# esx_vigneronjob
