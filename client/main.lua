@@ -2,31 +2,12 @@
 -- Created and modify by L'ile Légale RP
 -- SenSi and Kaminosekai
 -----------------------------------------
-
-
-local Keys = {
-	["ESC"] = 322, ["F1"] = 288, ["F2"] = 289, ["F3"] = 170, ["F5"] = 166, ["F6"] = 167, ["F7"] = 168, ["F8"] = 169, ["F9"] = 56, ["F10"] = 57,
-	["~"] = 243, ["1"] = 157, ["2"] = 158, ["3"] = 160, ["4"] = 164, ["5"] = 165, ["6"] = 159, ["7"] = 161, ["8"] = 162, ["9"] = 163, ["-"] = 84, ["="] = 83, ["BACKSPACE"] = 177,
-	["TAB"] = 37, ["Q"] = 44, ["W"] = 32, ["E"] = 38, ["R"] = 45, ["T"] = 245, ["Y"] = 246, ["U"] = 303, ["P"] = 199, ["["] = 39, ["]"] = 40, ["ENTER"] = 18,
-	["CAPS"] = 137, ["A"] = 34, ["S"] = 8, ["D"] = 9, ["F"] = 23, ["G"] = 47, ["H"] = 74, ["K"] = 311, ["L"] = 182,
-	["LEFTSHIFT"] = 21, ["Z"] = 20, ["X"] = 73, ["C"] = 26, ["V"] = 0, ["B"] = 29, ["N"] = 249, ["M"] = 244, [","] = 82, ["."] = 81,
-	["LEFTCTRL"] = 36, ["LEFTALT"] = 19, ["SPACE"] = 22, ["RIGHTCTRL"] = 70,
-	["HOME"] = 213, ["PAGEUP"] = 10, ["PAGEDOWN"] = 11, ["DELETE"] = 178,
-	["LEFT"] = 174, ["RIGHT"] = 175, ["TOP"] = 27, ["DOWN"] = 173,
-	["NENTER"] = 201, ["N4"] = 108, ["N5"] = 60, ["N6"] = 107, ["N+"] = 96, ["N-"] = 97, ["N7"] = 117, ["N8"] = 61, ["N9"] = 118
-}
-
-local PlayerData                = {}
-local GUI                       = {}
-local HasAlreadyEnteredMarker   = false
-local LastZone                  = nil
-local CurrentAction             = nil
-local CurrentActionMsg          = ''
-local CurrentActionData         = {}
-local JobBlips                = {}
+local PlayerData, GUI, CurrentActionData, JobBlips = {}, {}, {}, {}
+local HasAlreadyEnteredMarker = false
+local LastZone, CurrentAction, CurrentActionMsg
 local publicBlip = false
-ESX                             = nil
-GUI.Time                        = 0
+ESX = nil
+GUI.Time = 0
 
 Citizen.CreateThread(function()
 	while ESX == nil do
@@ -48,23 +29,19 @@ function TeleportFadeEffect(entity, coords)
 		ESX.Game.Teleport(entity, coords, function()
 			DoScreenFadeIn(800)
 		end)
-
 	end)
 end
 
 function OpenCloakroomMenu()
 
-	ESX.UI.Menu.Open(
-		'default', GetCurrentResourceName(), 'cloakroom',
-		{
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'cloakroom', {
 			title    = _U('cloakroom'),
 			align    = 'top-left',
 			elements = {
 				{label = _U('vine_clothes_civil'), value = 'citizen_wear'},
 				{label = _U('vine_clothes_vine'), value = 'vigne_wear'},
 			},
-		},
-		function(data, menu)
+		}, function(data, menu)
 
 			menu.close()
 
@@ -87,12 +64,9 @@ function OpenCloakroomMenu()
 			CurrentAction     = 'vigne_actions_menu'
 			CurrentActionMsg  = _U('open_menu')
 			CurrentActionData = {}
-		end,
-		function(data, menu)
+		end, function(data, menu)
 			menu.close()
-		end
-	)
-
+		end)
 end
 
 function OpenVigneActionsMenu()
@@ -112,15 +86,12 @@ function OpenVigneActionsMenu()
 
 	ESX.UI.Menu.CloseAll()
 
-	ESX.UI.Menu.Open(
-		'default', GetCurrentResourceName(), 'vigne_actions',
-		{
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vigne_actions', {
 			title    = 'Vigne',
 			align    = 'top-left',
 			elements = elements
-		},
-		
-		function(data, menu)
+		}, function(data, menu)
+
 			if data.current.value == 'cloakroom' then
 				OpenCloakroomMenu()
 			end
@@ -138,18 +109,14 @@ function OpenVigneActionsMenu()
 					menu.close()
 				end)
 			end
-
-		end,
-		function(data, menu)
+		end, function(data, menu)
 
 			menu.close()
 
 			CurrentAction     = 'vigne_actions_menu'
 			CurrentActionMsg  = _U('press_to_open')
 			CurrentActionData = {}
-
-		end
-	)
+		end)
 end
 
 function OpenVehicleSpawnerMenu()
@@ -166,14 +133,11 @@ function OpenVehicleSpawnerMenu()
 				table.insert(elements, {label = GetDisplayNameFromVehicleModel(vehicles[i].model) .. ' [' .. vehicles[i].plate .. ']', value = vehicles[i]})
 			end
 
-			ESX.UI.Menu.Open(
-				'default', GetCurrentResourceName(), 'vehicle_spawner',
-				{
+			ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner', {
 					title    = _U('veh_menu'),
 					align    = 'top-left',
 					elements = elements,
-				},
-				function(data, menu)
+				}, function(data, menu)
 
 					menu.close()
 
@@ -187,18 +151,14 @@ function OpenVehicleSpawnerMenu()
 
 					TriggerServerEvent('esx_society:removeVehicleFromGarage', 'vigne', vehicleProps)
 
-				end,
-				function(data, menu)
+				end, function(data, menu)
 
 					menu.close()
 
 					CurrentAction     = 'vehicle_spawner_menu'
 					CurrentActionMsg  = _U('spawn_veh')
 					CurrentActionData = {}
-
-				end
-			)
-
+				end)
 		end, 'vigne')
 
 	else
@@ -207,14 +167,11 @@ function OpenVehicleSpawnerMenu()
 			{label = 'Véhicule de Travail',  value = 'bison3'},
 		}
 		
-		ESX.UI.Menu.Open(
-			'default', GetCurrentResourceName(), 'vehicle_spawner',
-			{
+		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'vehicle_spawner', {
 				title    = _U('veh_menu'),
 				align    = 'top-left',
 				elements = elements,
-			},
-			function(data, menu)
+			}, function(data, menu)
 
 				menu.close()
 
@@ -224,17 +181,14 @@ function OpenVehicleSpawnerMenu()
 					local playerPed = GetPlayerPed(-1)
 					TaskWarpPedIntoVehicle(playerPed,  vehicle,  -1)
 				end)
-			end,
-			function(data, menu)
+			end, function(data, menu)
 
 				menu.close()
 
 				CurrentAction     = 'vehicle_spawner_menu'
 				CurrentActionMsg  = _U('spawn_veh')
 				CurrentActionData = {}
-
-			end
-		)
+			end)
 	end
 end
 
@@ -242,25 +196,19 @@ function OpenMobileVigneActionsMenu()
 
 	ESX.UI.Menu.CloseAll()
 
-	ESX.UI.Menu.Open(
-		'default', GetCurrentResourceName(), 'mobile_vigne_actions',
-		{
+	ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'mobile_vigne_actions', {
 			title    = 'vigne',
 			align    = 'top-left',
 			elements = {
 				{label = _U('billing'), value = 'billing'}
 			}
-		},
-		function(data, menu)
+		}, function(data, menu)
 
 			if data.current.value == 'billing' then
 
-				ESX.UI.Menu.Open(
-					'dialog', GetCurrentResourceName(), 'billing',
-					{
+				ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'billing', {
 						title = _U('invoice_amount')
-					},
-					function(data, menu)
+					}, function(data, menu)
 
 						local amount = tonumber(data.value)
 
@@ -284,17 +232,13 @@ function OpenMobileVigneActionsMenu()
 								end)
 							end
 						end
-					end,
-					function(data, menu)
+					end, function(data, menu)
 						menu.close()
-					end
-				)
+					end)
 			end
-		end,
-		function(data, menu)
+		end, function(data, menu)
 			menu.close()
-		end
-	)
+		end)
 end
 
 function OpenGetStocksMenu()
@@ -311,23 +255,17 @@ function OpenGetStocksMenu()
 			end
 		end
 
-		ESX.UI.Menu.Open(
-			'default', GetCurrentResourceName(), 'stocks_menu',
-			{
+		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'stocks_menu', {
 				title    = 'Vigneron Stock',
 				align    = 'top-left',
 				elements = elements
-			},
-			function(data, menu)
+			}, function(data, menu)
 
 				local itemName = data.current.value
 
-				ESX.UI.Menu.Open(
-					'dialog', GetCurrentResourceName(), 'stocks_menu_get_item_count',
-					{
+				ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'stocks_menu_get_item_count', {
 						title = _U('quantity')
-					},
-					function(data2, menu2)
+					}, function(data2, menu2)
 		
 						local count = tonumber(data2.value)
 
@@ -340,18 +278,12 @@ function OpenGetStocksMenu()
 
 							TriggerServerEvent('esx_vigneronjob:getStockItem', itemName, count)
 						end
-
-					end,
-					function(data2, menu2)
+					end, function(data2, menu2)
 						menu2.close()
-					end
-				)
-
-			end,
-			function(data, menu)
+					end)
+			end, function(data, menu)
 				menu.close()
-			end
-		)
+			end)
 	end)
 end
 
@@ -368,25 +300,18 @@ function OpenPutStocksMenu()
 			if item.count > 0 then
 				table.insert(elements, {label = item.label .. ' x' .. item.count, type = 'item_standard', value = item.name})
 			end
-
 		end
 
-		ESX.UI.Menu.Open(
-			'default', GetCurrentResourceName(), 'stocks_menu',
-			{
+		ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'stocks_menu', {
 				title    = _U('inventory'),
 				elements = elements
-			},
-			function(data, menu)
+			}, function(data, menu)
 
 				local itemName = data.current.value
 
-				ESX.UI.Menu.Open(
-					'dialog', GetCurrentResourceName(), 'stocks_menu_put_item_count',
-					{
+				ESX.UI.Menu.Open('dialog', GetCurrentResourceName(), 'stocks_menu_put_item_count', {
 						title = _U('quantity')
-					},
-					function(data2, menu2)
+					}, function(data2, menu2)
 
 						local count = tonumber(data2.value)
 
@@ -399,23 +324,14 @@ function OpenPutStocksMenu()
 
 							TriggerServerEvent('esx_vigneronjob:putStockItems', itemName, count)
 						end
-
-					end,
-					function(data2, menu2)
+					end, function(data2, menu2)
 						menu2.close()
-					end
-				)
-
-			end,
-			function(data, menu)
+					end)
+			end, function(data, menu)
 				menu.close()
-			end
-		)
-
+			end)
 	end)
-
 end
-
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
@@ -485,7 +401,6 @@ AddEventHandler('esx_vigneronjob:hasEnteredMarker', function(zone)
 				CurrentAction     = 'delete_vehicle'
 				CurrentActionMsg  = _U('store_veh')
 				CurrentActionData = {vehicle = vehicle}
-
 			end
 		end
 	end
@@ -505,7 +420,6 @@ AddEventHandler('esx_vigneronjob:hasExitedMarker', function(zone)
 	CurrentAction = nil
 end)
 
-
 RegisterNetEvent('esx_phone:loaded')
 AddEventHandler('esx_phone:loaded', function(phoneNumber, contacts)
 
@@ -516,7 +430,6 @@ AddEventHandler('esx_phone:loaded', function(phoneNumber, contacts)
 	}
 
 	TriggerEvent('esx_phone:addSpecialContact', specialContact.name, specialContact.number, specialContact.base64Icon)
-
 end)
 
 function deleteBlips()
@@ -565,7 +478,6 @@ function blips()
 	end
 end
 
-
 -- Display markers
 Citizen.CreateThread(function()
 	while true do
@@ -581,7 +493,6 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
-
 
 -- Enter / Exit marker events
 Citizen.CreateThread(function()
@@ -628,7 +539,7 @@ Citizen.CreateThread(function()
 			AddTextComponentString(CurrentActionMsg)
 			DisplayHelpTextFromStringLabel(0, 0, 1, -1)
 
-			if IsControlPressed(0,  Keys['E']) and PlayerData.job ~= nil and PlayerData.job.name == 'vigne' and (GetGameTimer() - GUI.Time) > 300 then
+			if IsControlPressed(0,  38) and PlayerData.job ~= nil and PlayerData.job.name == 'vigne' and (GetGameTimer() - GUI.Time) > 300 then
 				if CurrentAction == 'raisin_harvest' then
 					TriggerServerEvent('esx_vigneronjob:startHarvest', CurrentActionData.zone)
 				end
@@ -660,11 +571,10 @@ Citizen.CreateThread(function()
 
 				CurrentAction = nil
 				GUI.Time      = GetGameTimer()
-
 			end
 		end
 
-		if IsControlPressed(0,  Keys['F6']) and Config.EnablePlayerManagement and PlayerData.job ~= nil and PlayerData.job.name == 'vigne' and (GetGameTimer() - GUI.Time) > 150 then
+		if IsControlPressed(0,  167) and Config.EnablePlayerManagement and PlayerData.job ~= nil and PlayerData.job.name == 'vigne' and (GetGameTimer() - GUI.Time) > 150 then
 			OpenMobileVigneActionsMenu()
 			GUI.Time = GetGameTimer()
 		end
