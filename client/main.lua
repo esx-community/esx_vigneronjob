@@ -3,9 +3,8 @@
 -- SenSi and Kaminosekai
 -----------------------------------------
 local PlayerData, GUI, CurrentActionData, JobBlips = {}, {}, {}, {}
-local HasAlreadyEnteredMarker = false
+local HasAlreadyEnteredMarker, publicBlip = false, false
 local LastZone, CurrentAction, CurrentActionMsg
-local publicBlip = false
 ESX = nil
 GUI.Time = 0
 
@@ -162,7 +161,7 @@ function OpenVehicleSpawnerMenu()
 		end, 'vigne')
 
 	else
-	
+
 		local elements = {
 			{label = 'Véhicule de Travail',  value = 'bison3'},
 		}
