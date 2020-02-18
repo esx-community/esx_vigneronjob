@@ -149,7 +149,6 @@ function OpenVehicleSpawnerMenu()
 					end)
 
 					TriggerServerEvent('esx_society:removeVehicleFromGarage', 'vigne', vehicleProps)
-
 				end, function(data, menu)
 
 					menu.close()
@@ -159,9 +158,7 @@ function OpenVehicleSpawnerMenu()
 					CurrentActionData = {}
 				end)
 		end, 'vigne')
-
 	else
-
 		local elements = {
 			{label = 'Véhicule de Travail',  value = 'bison3'},
 		}
@@ -421,7 +418,6 @@ end)
 
 RegisterNetEvent('esx_phone:loaded')
 AddEventHandler('esx_phone:loaded', function(phoneNumber, contacts)
-
 	local specialContact = {
 		name       = 'Vigneron',
 		number     = 'vigne',
